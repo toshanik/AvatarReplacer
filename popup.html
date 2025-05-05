@@ -3,19 +3,24 @@
   <head>
   	<meta charset="UTF-8">
     <style type="text/css">
-
     	/* задаём размеры кнопки и размер текста на кнопке  */
     	button {
 	      font-size: 12px;
 		  height: 40px;
 		  width: 80px;
 		}
+        
+        body {
+          flex-direction: row | row-reverse | column | column-reverse;
+        }
     </style>
   </head>
   <body>
   	<!-- создаём кнопку на странице -->
     <button id="snow">Запустить снежинки</button>
+    <button id="changeColor">Изменить цвет</button>
     <!-- подключаем скрипт, который обработает нажатие на эту кнопку -->
+    <script src="snow.js"></script>
     <script src="popup.js"></script>
   </body>
 </html>
