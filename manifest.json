@@ -1,18 +1,18 @@
 {
-  "name": "Запускаем снежинки на любом сайте",
-  "description": "Проект журнала Код",
-  "version": "1.0",
   "manifest_version": 3,
-  "icons": {
-    "16": "/icons/16.png",
-    "32": "/icons/32.png",
-    "64": "/icons/64.png",
-    "128": "/icons/128.png",
-    "256": "/icons/256.png"
-  },
-  "action": {
-    "default_popup": "popup.html",
-    "default_icon": "/icons/256.png"
-  },
-  "permissions": ["activeTab", "scripting"]
+  "name": "Avatar Replacer",
+  "version": "1.0",
+  "description": "Заменяет Base64-аватар на свой",
+  "content_scripts": [
+    {
+      "matches": [ "https://drx.rosa-it.ru/*","http://drx.rosa-it.ru/*" ],
+      "js": ["content.js"]
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["my-avatar.png"],
+      "matches": [ "https://drx.rosa-it.ru/*","http://drx.rosa-it.ru/*" ]
+    }
+  ]
 }
