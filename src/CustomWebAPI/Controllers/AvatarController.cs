@@ -6,49 +6,40 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Sungero.Logging;
+using CustomWebAPI.Models;
 
 namespace CustomWebAPI.Host.Controllers
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class AvatarController : ControllerBase
+  [Route("api/[controller]")]
+  [ApiController]
+  public class AvatarController : ControllerBase
+  {
+    internal static ILog logger => Logs.GetLogger<CustomController>();
+    private readonly UserService _userService;
+
+    public AvatarController(UserService userService)
     {
-        internal static ILog logger => Logs.GetLogger<CustomController>();
-
-        // GET: api/Custom
-        [HttpGet]
-        public IEnumerable<string> Get()
-        {
-            logger.Debug("Hello World!!!");
-            return new string[] { "value1", "value2" };
-        }
-
-        // GET: api/Custom/5
-        [HttpGet("{id}", Name = "Get")]
-        public string Get(int id)
-        {
-            return "value";
-        }
-
-        // POST: api/Custom
-        [HttpPost]
-        public IActionResult Post([FromBody] CustomWebAPI.Models.UserViewModel model)
-        {
-            var jsonReturn = JsonConvert.SerializeObject(model);
-            return Ok(jsonReturn);
-        }
-
-
-        // PUT: api/Custom/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
-        {
-        }
-
-        // DELETE: api/ApiWithActions/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
-        {
-        }
+      _userService = userService;
     }
+
+    [HttpGet("{id}", Name = "GetAvatar")]
+    public string Get(int id)
+    {
+      return id.ToString();
+    }
+
+    [HttpPost("{id},{name}")]
+    public string Test(int id, string name)
+    {
+      logger.Debug("Âûחמג Test ס ןאנאלוענאלט {@id}, {@name}", id, name);
+      return id + name;
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Post([FromBody] CustomWebAPI.Models.User model)
+    {
+      var isUserCreated = await _userService.CreateUserAsync(model);
+      return Ok("User created successfully");
+    }
+  }
 }

@@ -24,7 +24,7 @@ namespace CustomWebAPI.Host.Controllers
     }
 
     // GET: api/Custom/5
-    [HttpGet("{id}", Name = "Get")]
+    [HttpGet("{id}", Name = "GetCustom")]
     public string Get(int id)
     {
       return "value";
