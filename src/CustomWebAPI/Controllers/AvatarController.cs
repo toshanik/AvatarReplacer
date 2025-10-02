@@ -23,8 +23,8 @@ namespace CustomWebAPI.Host.Controllers
       _avatarService = avatarService;
     }
 
-    [HttpPost("replace")]
-    public async Task<IActionResult> ReplaceAvatar([FromBody] AvatarRequestDto request)
+    [HttpPost("GetAvatar")]
+    public async Task<IActionResult> GetAvatar([FromBody] AvatarRequestDto request)
     {
       try
       {
@@ -78,4 +78,5 @@ namespace CustomWebAPI.Host.Controllers
     public string ImageType { get; set; } = "original"; // "original", "generated"
     public string? Prompt { get; set; }
   }
+
 }

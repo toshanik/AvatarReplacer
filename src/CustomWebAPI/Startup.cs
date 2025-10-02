@@ -34,7 +34,6 @@ namespace CustomWebAPI
         options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
       services.AddScoped<UserRepository>();
       services.AddScoped<AvatarRepository>();
-      services.AddScoped<UserService>();
       services.AddScoped<AvatarService>();
     }
 
