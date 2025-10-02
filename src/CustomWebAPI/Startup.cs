@@ -1,17 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using CustomWebAPI.Data;
+using CustomWebAPI.Repositories;
+using CustomWebAPI.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using CustomWebAPI.Data;
-using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CustomWebAPI
 {
@@ -30,7 +32,10 @@ namespace CustomWebAPI
       services.AddControllers();
       services.AddDbContext<AppDbContext>(options =>
         options.UseNpgsql(Configuration.GetConnectionString("DefaultConnection")));
+      services.AddScoped<UserRepository>();
+      services.AddScoped<AvatarRepository>();
       services.AddScoped<UserService>();
+      services.AddScoped<AvatarService>();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

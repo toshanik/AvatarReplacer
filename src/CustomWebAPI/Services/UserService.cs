@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 public class UserService
 {
+  /*
     private readonly AppDbContext _context;
 
     public UserService(AppDbContext context)
@@ -36,4 +37,5 @@ public class UserService
         await _context.SaveChangesAsync();
         return true;
     }
+  */
 }

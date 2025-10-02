@@ -1,12 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Sungero.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using CustomWebAPI.Models;
+using CustomWebAPI.Services;
 
 namespace CustomWebAPI.Host.Controllers
 {
@@ -14,32 +15,67 @@ namespace CustomWebAPI.Host.Controllers
   [ApiController]
   public class AvatarController : ControllerBase
   {
-    internal static ILog logger => Logs.GetLogger<CustomController>();
-    private readonly UserService _userService;
+    internal static ILog Logger => Logs.GetLogger<AvatarController>();
+    private readonly AvatarService _avatarService;
 
-    public AvatarController(UserService userService)
+    public AvatarController(AvatarService avatarService)
     {
-      _userService = userService;
+      _avatarService = avatarService;
     }
 
-    [HttpGet("{id}", Name = "GetAvatar")]
-    public string Get(int id)
+    [HttpPost("replace")]
+    public async Task<IActionResult> ReplaceAvatar([FromBody] AvatarRequestDto request)
     {
-      return id.ToString();
+      try
+      {
+        var user = await _avatarService.FindOrCreateUserAsync(request.Author);
+
+        Avatar? avatar = null;
+
+        if (request.ImageType == "original")
+        {
+          if (!string.IsNullOrEmpty(request.ImageData))
+          {
+            await _avatarService.SaveOriginalAvatarAsync(user.Id, request.ImageData, request.Size);
+          }
+
+          avatar = await _avatarService.GetAvatarAsync(user.Id, request.Size, "original");
+        }
+        else if (request.ImageType == "generated")
+        {
+          avatar = await _avatarService.GenerateAndSaveAvatarAsync(user.Id, request.Prompt, request.Size);
+        }
+
+        if (avatar == null)
+        {
+          return NotFound("Avatar not found.");
+        }
+
+        return Ok(new { ImageData = avatar.ImageData });
+      }
+      catch (Exception ex)
+      {
+        Logger.Error(ex, "Error in ReplaceAvatar");
+        return StatusCode(500, "Internal server error");
+      }
     }
 
-    [HttpPost("{id},{name}")]
-    public string Test(int id, string name)
+    [HttpGet("user/{author}/avatars")]
+    public async Task<IActionResult> GetUserAvatars(string author, [FromQuery] string prompt = "")
     {
-      logger.Debug("Âûחמג Test ס ןאנאלוענאלט {@id}, {@name}", id, name);
-      return id + name;
-    }
+      var user = await _avatarService.FindOrCreateUserAsync(author);
+      var avatars = await _avatarService.GetGeneratedAvatarsAsync(user.Id, prompt);
 
-    [HttpPost]
-    public async Task<IActionResult> Post([FromBody] CustomWebAPI.Models.User model)
-    {
-      var isUserCreated = await _userService.CreateUserAsync(model);
-      return Ok("User created successfully");
+      return Ok(avatars);
     }
+  }
+
+  public class AvatarRequestDto
+  {
+    public string Author { get; set; } = string.Empty;
+    public string? ImageData { get; set; } // Base64
+    public string Size { get; set; } = "large"; // "icon", "large"
+    public string ImageType { get; set; } = "original"; // "original", "generated"
+    public string? Prompt { get; set; }
   }
 }
