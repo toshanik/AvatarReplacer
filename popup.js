@@ -1,6 +1,9 @@
-const API_URL = "http://localhost:12001/api/"; // укажи адрес ASP.NET микросервиса
+const API_URL = "http://localhost:12001/api"; // укажи адрес ASP.NET микросервиса
+
+console.log("popup.js");
 
 document.getElementById("generateBtn").addEventListener("click", async () => {
+  console.log("generateBtn");
   const displayName = document.getElementById("displayName").value;
   const prompt = document.getElementById("prompt").value;
 
@@ -11,10 +14,11 @@ document.getElementById("generateBtn").addEventListener("click", async () => {
   });
 
   const data = await res.json();
-  alert("✅ Сгенерировано: " + data.generatedImageUrl);
+  console.log("✅ Сгенерировано: " + data.generatedImageUrl);
 });
 
 document.getElementById("batchBtn").addEventListener("click", async () => {
+  console.log("batchBtn");
   const prompt = document.getElementById("batchPrompt").value;
 
   const res = await fetch(`${API_URL}/generation/batch`, {
@@ -24,18 +28,27 @@ document.getElementById("batchBtn").addEventListener("click", async () => {
   });
 
   const data = await res.json();
-  alert("✅ Массовая генерация запущена (" + data.requestId + ")");
+  console.log("✅ Массовая генерация запущена (" + data.requestId + ")");
 });
 
 document.getElementById("loadHistoryBtn").addEventListener("click", async () => {
-  const res = await fetch(`${API_URL}/images/history`);
-  const history = await res.json();
+  const { currentUser } = await chrome.storage.local.get(['currentUser']);
+  try {
+    console.log("loadHistoryBtn");
+    const res = await fetch(`${API_URL}/generation/history/${currentUser}`);
+    const history = await res.json();
 
-  const container = document.getElementById("historyContainer");
-  container.innerHTML = "";
-  history.forEach(item => {
-    const img = document.createElement("img");
-    img.src = item.generatedImageUrl;
-    container.appendChild(img);
-  });
+    const container = document.getElementById("historyContainer");
+    container.innerHTML = "";
+    history.forEach(item => {
+      const img = document.createElement("img");
+      img.src = item.generatedImageUrl;
+      container.appendChild(img);
+    });
+  } catch (error) {
+    console.error('Error:', error);
+    const container = document.getElementById("historyContainer");
+    container.innerHTML = error;
+  }
+  
 });

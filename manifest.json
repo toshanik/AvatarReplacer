@@ -2,17 +2,40 @@
   "manifest_version": 3,
   "name": "Avatar Replacer",
   "version": "1.0",
-  "description": "Заменяет Base64-аватар на свой",
+  "description": "Заменяет аватары на сгенерированные ИИ",
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "http://localhost:5000/*",
+    "https://drx.rosa-it.ru/*",
+    "http://drx.rosa-it.ru/*"
+  ],
   "content_scripts": [
     {
-      "matches": [ "https://drx.rosa-it.ru/*","http://drx.rosa-it.ru/*" ],
-      "js": ["content.js"]
+      "matches": ["https://drx.rosa-it.ru/*", "http://drx.rosa-it.ru/*"],
+      "js": ["content.js", "popup.js"]
     }
   ],
   "web_accessible_resources": [
     {
-      "resources": ["my-avatar.png"],
-      "matches": [ "https://drx.rosa-it.ru/*","http://drx.rosa-it.ru/*" ]
+      "resources": ["popup.js", "my-avatar.png"],
+      "matches": ["https://drx.rosa-it.ru/*", "http://drx.rosa-it.ru/*"]
     }
   ]
 }

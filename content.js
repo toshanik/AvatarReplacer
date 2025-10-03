@@ -1,4 +1,4 @@
-const API_URL = "http://localhost:5000/api"; // адрес бэкенда
+const API_URL = "http://localhost:12001/api"; // адрес бэкенда
 
 // Отправка списка сотрудников
 async function sendUsersToServer(users) {
@@ -24,9 +24,13 @@ async function getGeneratedAvatar(displayName) {
 
 // Модифицируем replaceImgSrc чтобы брать с сервера
 async function replaceImgSrc(imgBlock, user) {
+  console.log('⚠️ replaceImgSrc. imgBlock: '+ imgBlock + '\nuser: ' + user);
   if (imgBlock && user) {
     const newImageUrl = await getGeneratedAvatar(user);
     if (!newImageUrl) return;
+    
+    console.log('⚠️ getGeneratedAvatar. generatedImageUrl: '+ newImageUrl);
+    
 
     imgBlock.setAttribute('data-original-src', imgBlock.src);
     imgBlock.src = newImageUrl;
@@ -67,7 +71,6 @@ async function updateUsers() {
 
 // Основной функционал, общий обработчик.
 function replaceAvatar() {
-  var userName = '';
   // Фото текущего пользователя.
   const currentUserBlock = document.querySelector('.current-user-info.header-view__button');
   const currentUser = currentUserBlock ? currentUserBlock.title : null;
@@ -80,6 +83,8 @@ function replaceAvatar() {
   replaceImgSrc(userImg, currentUser);
   
   console.log('Текущий пользователь: ' + currentUser);
+  
+  chrome.storage.local.set({ currentUser: currentUser });
   
   // Всплывающее окно.
   const popupBlocks = document.querySelectorAll('.popup popup_with-floating-panel');
