@@ -1,37 +1,67 @@
-// Функция замены аватара
-function replaceImgSrc(imgBlock, user) {
-    console.log('⚠️ imgBlock: '+ imgBlock + '\nuser: ' + user);
-    if (imgBlock && user) {
-      // Получаем изображение на которое заменяем.
-      const newImageUrl = (typeof browser !== 'undefined' ? browser : chrome).runtime.getURL('my-avatar.png');
-      
-      imgBlock.setAttribute('data-original-src', imgBlock.src); // сохраняем оригинал
-      imgBlock.src = newImageUrl;
-      
-      imgBlock.addEventListener('click', function() { // вещаем листенер для возврата изображения по нажатию
-        const originalSrc = this.getAttribute('data-original-src');
-        if (originalSrc) {
-          this.src = originalSrc;
-          this.removeAttribute('data-original-src');
-        }
-      });
-      
-      console.log('✅ Аватар заменён!');
-    }
+const API_URL = "http://localhost:5000/api"; // адрес бэкенда
+
+// Отправка списка сотрудников
+async function sendUsersToServer(users) {
+  const res = await fetch(`${API_URL}/users/batch`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(users)
+  });
+
+  if (!res.ok) {
+    throw new Error("Ошибка при сохранении сотрудников");
+  }
+  return await res.json(); // например вернуть список ID сотрудников
 }
 
-// Нужно обновление через сервис интеграции.
-function updateUsers() {
-  // Если текущий пользователь на странице "Сотрудники", то обновить список сотрудников?
-  if (window.location.href.includes("drx.rosa-it.ru/drxweb/#/list/b7905516-2be5-4931-961c-cb38d5677565")) {
-    console.log("Отправить список сотрудников на сервер.");
-    const employees = document.querySelectorAll('.columns-builder__text-container.columns-builder__text-container_linesmode_single[href]');
-    employees.forEach(block => {
-        if (block.querySelector('[href]') != null) {
-            const span = block.querySelector('span');
-            console.log(span.textContent);
-        }
+// Получение аватара с сервера
+async function getGeneratedAvatar(displayName) {
+  const res = await fetch(`${API_URL}/users/by-displayname/${encodeURIComponent(displayName)}`);
+  if (!res.ok) return null;
+  const data = await res.json();
+  return data.generatedImageUrl;
+}
+
+// Модифицируем replaceImgSrc чтобы брать с сервера
+async function replaceImgSrc(imgBlock, user) {
+  if (imgBlock && user) {
+    const newImageUrl = await getGeneratedAvatar(user);
+    if (!newImageUrl) return;
+
+    imgBlock.setAttribute('data-original-src', imgBlock.src);
+    imgBlock.src = newImageUrl;
+
+    imgBlock.addEventListener('click', function () {
+      const originalSrc = this.getAttribute('data-original-src');
+      if (originalSrc) {
+        this.src = originalSrc;
+        this.removeAttribute('data-original-src');
+      }
     });
+
+    console.log(`✅ Аватар ${user} заменён на ИИ-версию`);
+  }
+}
+
+// Обновление пользователей со страницы
+async function updateUsers() {
+  if (window.location.href.includes("drx.rosa-it.ru/drxweb/#/list")) {
+    const employees = [];
+    document.querySelectorAll('.columns-builder__text-container.columns-builder__text-container_linesmode_single[href]').forEach(block => {
+      const span = block.querySelector('span');
+      if (span) {
+        employees.push({ displayName: span.textContent });
+      }
+    });
+
+    if (employees.length > 0) {
+      try {
+        const res = await sendUsersToServer(employees); // ждём ответ
+        console.log("✅ Список сотрудников отправлен", res);
+      } catch (err) {
+        console.error("❌ Ошибка при отправке сотрудников:", err);
+      }
+    }
   }
 }
 

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Avatar Replacer</title>
+  <style>
+    body { font-family: Arial, sans-serif; width: 300px; padding: 10px; }
+    input, button, textarea { width: 100%; margin: 5px 0; padding: 6px; }
+    .history { max-height: 200px; overflow-y: auto; border: 1px solid #ccc; padding: 5px; }
+    .history img { max-width: 100%; margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h3>Генерация аватара</h3>
+  <input type="text" id="displayName" placeholder="Имя сотрудника">
+  <textarea id="prompt" placeholder="Введите промт..."></textarea>
+  <button id="generateBtn">Сгенерировать</button>
+
+  <h3>Массовая генерация</h3>
+  <textarea id="batchPrompt" placeholder="Промт для всех"></textarea>
+  <button id="batchBtn">Сгенерировать всем</button>
+
+  <h3>История генераций</h3>
+  <button id="loadHistoryBtn">Загрузить историю</button>
+  <div class="history" id="historyContainer"></div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
