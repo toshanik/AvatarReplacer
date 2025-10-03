@@ -7,6 +7,7 @@ namespace CustomWebAPI.Models
   {
     public int Id { get; set; }
     public int UserId { get; set; }
+    public string ImagePath { get; set; } = string.Empty; // относительный путь к фалу в хранилище
     public string ImageData { get; set; } = string.Empty; // Base64 encoded image
     public string ImageType { get; set; } = "original"; // "original", "generated"
     public string Prompt { get; set; } = string.Empty; // Для ИИ-изображений

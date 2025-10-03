@@ -15,6 +15,7 @@ namespace CustomWebAPI.Repositories
 
     public async Task<Avatar> CreateAsync(Avatar avatar)
     {
+      // TODO Хранить видимо лучше в файловом хранилище а не в бд
       _context.Avatars.Add(avatar);
       await _context.SaveChangesAsync();
       return avatar;
@@ -23,7 +24,7 @@ namespace CustomWebAPI.Repositories
     public async Task<Avatar?> GetByUserSizeAndTypeAsync(int userId, string size, string type)
     {
       return await _context.Avatars
-          .Where(a => a.UserId == userId && a.Size == size && a.ImageType == type)
+          .Where(a => a.UserId == userId && a.ImageType == type)
           .OrderByDescending(a => a.CreatedAt)
           .FirstOrDefaultAsync();
     }

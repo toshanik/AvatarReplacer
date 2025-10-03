@@ -35,6 +35,19 @@ namespace CustomWebAPI
       services.AddScoped<UserRepository>();
       services.AddScoped<AvatarRepository>();
       services.AddScoped<AvatarService>();
+
+      // 🔹 Разрешаем CORS
+      services.AddCors(options =>
+      {
+        options.AddPolicy("AllowAll",
+            builder =>
+            {
+              builder
+                  .AllowAnyOrigin()
+                  .AllowAnyHeader()
+                  .AllowAnyMethod();
+            });
+      });
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,9 +57,9 @@ namespace CustomWebAPI
       {
         app.UseDeveloperExceptionPage();
       }
-
+      app.UseStaticFiles();
       app.UseRouting();
-
+      app.UseCors("AllowAll");
       app.UseEndpoints(endpoints =>
       {
         endpoints.MapControllers();

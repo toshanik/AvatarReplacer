@@ -1,10 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using CustomWebAPI.Data;
+﻿using CustomWebAPI.Data;
 using CustomWebAPI.Models;
 using CustomWebAPI.Repositories;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace CustomWebAPI.Services
 {
@@ -35,10 +37,27 @@ namespace CustomWebAPI.Services
 
     public async Task<Avatar> SaveOriginalAvatarAsync(int userId, string imageData, string size)
     {
+      // 🔹 Декодируем Base64 строку в байты
+      var imageBytes = Convert.FromBase64String(imageData);
+
+      // 🔹 Генерируем уникальное имя файла
+      var fileName = $"{Guid.NewGuid()}.png"; // или .jpg, в зависимости от типа
+      var uploadPath = Path.Combine("wwwroot", "uploads", "avatars"); // Папка для хранения
+
+      // 🔹 Создаём папку, если её нет
+      Directory.CreateDirectory(uploadPath);
+
+      // 🔹 Полный путь к файлу
+      var filePath = Path.Combine(uploadPath, fileName);
+
+      // 🔹 Сохраняем файл
+      await File.WriteAllBytesAsync(filePath, imageBytes);
+
+      // 🔹 Создаём сущность с путём к файлу
       var avatar = new Avatar
       {
         UserId = userId,
-        ImageData = imageData,
+        ImagePath = $"/uploads/avatars/{fileName}", // Сохраняем относительный путь
         Size = size,
         ImageType = "original"
       };
@@ -48,7 +67,8 @@ namespace CustomWebAPI.Services
 
     public async Task<Avatar> GenerateAndSaveAvatarAsync(int userId, string prompt, string size)
     {
-      var generatedImage = ImageProcessor.GenerateImageFromPrompt(prompt);
+      var originalAvatar = await this.GetAvatarAsync(userId, size, "original");
+      var generatedImage = ImageProcessor.GenerateImageFromPrompt(prompt, originalAvatar?.ImageData);
 
       var avatar = new Avatar
       {
@@ -64,7 +84,10 @@ namespace CustomWebAPI.Services
 
     public async Task<Avatar?> GetAvatarAsync(int userId, string size, string type = "original")
     {
-      return await _avatarRepository.GetByUserSizeAndTypeAsync(userId, size, type);
+      var avatar = await _avatarRepository.GetByUserSizeAndTypeAsync(userId, null, size);
+      if (avatar == null)
+        avatar =  await this.GenerateAndSaveAvatarAsync(userId, null, size);
+      return avatar;
     }
 
     public async Task<List<Avatar>> GetGeneratedAvatarsAsync(int userId, string prompt = "")

@@ -1,13 +1,14 @@
+using CustomWebAPI.Models;
+using CustomWebAPI.Services;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Sungero.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CustomWebAPI.Models;
-using CustomWebAPI.Services;
 
 namespace CustomWebAPI.Host.Controllers
 {
@@ -35,14 +36,13 @@ namespace CustomWebAPI.Host.Controllers
         if (request.ImageType == "original")
         {
           if (!string.IsNullOrEmpty(request.ImageData))
-          {
             await _avatarService.SaveOriginalAvatarAsync(user.Id, request.ImageData, request.Size);
-          }
 
-          avatar = await _avatarService.GetAvatarAsync(user.Id, request.Size, "original");
+          avatar = await _avatarService.GenerateAndSaveAvatarAsync(user.Id, request.Prompt, request.Size);
         }
         else if (request.ImageType == "generated")
         {
+          // Тут нужно получить сгенерированную картинку.
           avatar = await _avatarService.GenerateAndSaveAvatarAsync(user.Id, request.Prompt, request.Size);
         }
 
@@ -51,7 +51,7 @@ namespace CustomWebAPI.Host.Controllers
           return NotFound("Avatar not found.");
         }
 
-        return Ok(new { ImageData = avatar.ImageData });
+        return Ok(new { ImagePath = avatar.ImagePath });
       }
       catch (Exception ex)
       {
